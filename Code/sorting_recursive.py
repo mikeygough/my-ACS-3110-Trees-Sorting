@@ -4,33 +4,58 @@
 def merge(items1, items2):
     """Merge given lists of items, each assumed to already be in sorted order,
     and return a new list containing all items in sorted order.
-    TODO: Running time: ??? Why and under what conditions?
-    TODO: Memory usage: ??? Why and under what conditions?"""
-    # TODO: Repeat until one list is empty
-    # TODO: Find minimum item in both lists and append it to new list
-    # TODO: Append remaining items in non-empty list to new list
+    TODO: Running time: O(n) always because we need to iterate through items1 and items2.
+    TODO: Memory usage: O(n) because we create a new list to hold all n elementbecause we create a new list to hold all n elements."""
+    results = []
+    # i for items1, j for items2
+    i = 0
+    j = 0
+    while i < len(items1) and j < len(items2):
+        # zipper!
+        if items1[i] <= items2[j]:
+            results.append(items1[i])
+            i += 1
+        else:
+            results.append(items2[j])
+            j += 1
+    # these are already sorted
+    results.extend(items1[i:])
+    results.extend(items2[j:])
+
+    return results
 
     
 def split_sort_merge(items):
-     """Sort given items by splitting list into two approximately equal halves,
-     sorting each with an iterative sorting algorithm, and merging results into
-     a list in sorted order.
-     TODO: Running time: ??? Why and under what conditions?
-     TODO: Memory usage: ??? Why and under what conditions?"""
-     # TODO: Split items list into approximately equal halves
-     # TODO: Sort each half using any other sorting algorithm
-     # TODO: Merge sorted halves into one list in sorted order
+    """Sort given items by splitting list into two approximately equal halves,
+    sorting each with an iterative sorting algorithm, and merging results into
+    a list in sorted order.
+    TODO: Running time: O(n log n), this is largely based on Python's built-in implementation of .sort()
+    TODO: Memory usage: O(n) because we create left, right and merged arrays?"""
+    middle = len(items) // 2
+    left = items[:middle]
+    left.sort()
+    right = items[middle:]
+    right.sort()
+    merged =  merge(left, right)
+
+    return merged
 
     
 def merge_sort(items):
     """Sort given items by splitting list into two approximately equal halves,
     sorting each recursively, and merging results into a list in sorted order.
-    TODO: Running time: ??? Why and under what conditions?
-    TODO: Memory usage: ??? Why and under what conditions?"""
-    # TODO: Check if list is so small it's already sorted (base case)
-    # TODO: Split items list into approximately equal halves
-    # TODO: Sort each half by recursively calling merge sort
-    # TODO: Merge sorted halves into one list in sorted order
+    TODO: Running time: O(n log n)
+    TODO: Memory usage: O(n log n), the copying at each level is O(n) per level, plus O(log n) levels"""
+    if len(items) <= 1:
+        return items
+
+    middle = len(items) // 2
+    left = merge_sort(items[:middle])
+    right = merge_sort(items[middle:])
+    merged_and_sorted = merge(left, right)
+
+    items[:] = merged_and_sorted
+    return items
 
 
 def partition(items, low, high):
