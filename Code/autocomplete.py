@@ -1,6 +1,6 @@
 #!python
 
-import sys
+import argparse
 import time
 
 
@@ -44,70 +44,37 @@ def autocomplete(prefix, structure, algorithm='linear_search'):
 
 def main():
     """Read command-line arguments and test autocomplete algorithms."""
-    if len(sys.argv) == 1:
-        script = sys.argv[0]  # Get script file name
-        print('Usage: {} prefix'.format(script))
-        print('Test autocomplete with dictionary words and the given prefix')
-        print('Example: {} axl'.format(script))
-        print('Completions of axl: axle, axled, axlesmith, axletree')
-        print()
-        print('Usage: {} prefixes-file vocabulary-file'.format(script))
-        print('Test autocomplete with the given prefixes and vocabulary files')
-        print('Example: {} prefixes.txt /usr/share/dict/words'.format(script))
-        return
+    parser = argparse.ArgumentParser(
+        description='Autocomplete words from the English dictionary.'
+    )
+    parser.add_argument('prefix', help='Prefix string to autocomplete')
+    parser.add_argument(
+        '--algorithm', choices=['linear', 'trie'], default='linear',
+        help='Search algorithm to use (default: linear)'
+    )
+    args = parser.parse_args()
 
-    elif len(sys.argv) == 2:
-        # Test autocomplete with dictionary words and the given prefix
-        prefix = sys.argv[1]
-        vocabulary = get_lines('/usr/share/dict/words')
+    algorithm = 'linear_search' if args.algorithm == 'linear' else 'trie'
+    vocabulary = get_lines('/usr/share/dict/words')
 
-        # Start the clock for benchmarking
-        start_time = time.time()
+    # Start the clock for benchmarking
+    start_time = time.time()
 
-        # Set up autocomplete and mark the clock
-        structure = autocomplete_setup(vocabulary)
-        setup_time = time.time()
+    # Set up autocomplete and mark the clock
+    structure = autocomplete_setup(vocabulary, algorithm)
+    setup_time = time.time()
 
-        # Run autocomplete and mark the clock
-        completions = autocomplete(prefix, structure)
-        end_time = time.time()
+    # Run autocomplete and mark the clock
+    completions = autocomplete(args.prefix, structure, algorithm)
+    end_time = time.time()
 
-        print('Vocabulary size: {}'.format(len(vocabulary)))
-        print('Completions of {}: {}'.format(prefix, ', '.join(completions)))
-        print()
-        print('Initial setup time: {:.6f} sec'.format(setup_time - start_time))
-        print('Autocomplete time:  {:.6f} sec'.format(end_time - setup_time))
-        print('Total time elapsed: {:.6f} sec'.format(end_time - start_time))
-
-    elif len(sys.argv) == 3:
-        # Open the given vocabulary and prefixes files
-        vocabulary = get_lines(sys.argv[2])
-        prefixes = get_lines(sys.argv[1])
-
-        # Start the clock for benchmarking
-        start_time = time.time()
-
-        # Set up autocomplete and mark the clock
-        structure = autocomplete_setup(vocabulary)
-        setup_time = time.time()
-
-        # Run autocomplete with each prefix
-        num_completions = 0
-        for prefix in prefixes:
-            completions = autocomplete(prefix, structure)
-            num_completions += len(completions)
-            # print('Completions of {}: {}'.format(prefix, ', '.join(completions)))
-
-        # Mark the clock
-        end_time = time.time()
-
-        print('Vocabulary size: {}'.format(len(vocabulary)))
-        print('Found {} total completions of {} prefixes'
-              .format(num_completions, len(prefixes)))
-        print()
-        print('Initial setup time: {:.6f} sec'.format(setup_time - start_time))
-        print('Autocomplete time:  {:.6f} sec'.format(end_time - setup_time))
-        print('Total time elapsed: {:.6f} sec'.format(end_time - start_time))
+    print('Algorithm: {}'.format(args.algorithm))
+    print('Vocabulary size: {}'.format(len(vocabulary)))
+    print('Completions of {!r}: {}'.format(args.prefix, ', '.join(completions)))
+    print()
+    print('Initial setup time: {:.6f} sec'.format(setup_time - start_time))
+    print('Autocomplete time:  {:.6f} sec'.format(end_time - setup_time))
+    print('Total time elapsed: {:.6f} sec'.format(end_time - start_time))
 
 
 if __name__ == '__main__':
