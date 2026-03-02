@@ -26,9 +26,9 @@ def autocomplete_setup(vocabulary, algorithm='linear_search'):
         # Use the given vocabulary list
         return vocabulary
     elif algorithm == 'trie':
-        from trie import Trie
-        # Create a trie structure with the vocabulary
-        return Trie(vocabulary)
+        from prefixtree import PrefixTree
+        # Create a prefix tree structure with the vocabulary
+        return PrefixTree(vocabulary)
 
 
 def autocomplete(prefix, structure, algorithm='linear_search'):
@@ -38,8 +38,8 @@ def autocomplete(prefix, structure, algorithm='linear_search'):
         # Search the list using linear search
         return [word for word in structure if word.startswith(prefix)]
     elif algorithm == 'trie':
-        # Search the trie structure for the prefix
-        return structure.search(prefix)
+        # Search the prefix tree for completions
+        return structure.complete(prefix)
 
 
 def main():
