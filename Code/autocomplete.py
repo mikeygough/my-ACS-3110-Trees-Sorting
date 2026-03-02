@@ -42,6 +42,42 @@ def autocomplete(prefix, structure, algorithm='linear_search'):
         return structure.complete(prefix)
 
 
+def run_benchmark(prefix, vocabulary):
+    """Run both algorithms on the same prefix and print a timing comparison."""
+    print('Benchmark: linear search vs prefix tree')
+    print('Vocabulary size: {:,}'.format(len(vocabulary)))
+    print('Prefix: {!r}'.format(prefix))
+    print()
+
+    results = {}
+    for algorithm in ('linear_search', 'trie'):
+        start_time = time.time()
+        structure = autocomplete_setup(vocabulary, algorithm)
+        setup_time = time.time()
+        completions = autocomplete(prefix, structure, algorithm)
+        end_time = time.time()
+        results[algorithm] = {
+            'completions': len(completions),
+            'setup': setup_time - start_time,
+            'search': end_time - setup_time,
+            'total': end_time - start_time,
+        }
+
+    linear = results['linear_search']
+    trie = results['trie']
+    speedup = linear['search'] / trie['search'] if trie['search'] > 0 else float('inf')
+
+    print('{:<20} {:>12} {:>12}'.format('', 'Linear Search', 'Prefix Tree'))
+    print('{:<20} {:>12} {:>12}'.format('Setup time (sec)',
+          '{:.6f}'.format(linear['setup']), '{:.6f}'.format(trie['setup'])))
+    print('{:<20} {:>12} {:>12}'.format('Search time (sec)',
+          '{:.6f}'.format(linear['search']), '{:.6f}'.format(trie['search'])))
+    print('{:<20} {:>12} {:>12}'.format('Completions found',
+          linear['completions'], trie['completions']))
+    print()
+    print('Prefix tree search was {:.0f}x faster than linear search.'.format(speedup))
+
+
 def main():
     """Read command-line arguments and test autocomplete algorithms."""
     parser = argparse.ArgumentParser(
@@ -52,10 +88,19 @@ def main():
         '--algorithm', choices=['linear', 'trie'], default='linear',
         help='Search algorithm to use (default: linear)'
     )
+    parser.add_argument(
+        '--benchmark', action='store_true',
+        help='Compare linear search and prefix tree side by side'
+    )
     args = parser.parse_args()
 
-    algorithm = 'linear_search' if args.algorithm == 'linear' else 'trie'
     vocabulary = get_lines('/usr/share/dict/words')
+
+    if args.benchmark:
+        run_benchmark(args.prefix, vocabulary)
+        return
+
+    algorithm = 'linear_search' if args.algorithm == 'linear' else 'trie'
 
     # Start the clock for benchmarking
     start_time = time.time()
