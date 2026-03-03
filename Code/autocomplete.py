@@ -78,12 +78,38 @@ def run_benchmark(prefix, vocabulary):
     print('Prefix tree search was {:.0f}x faster than linear search.'.format(speedup))
 
 
+def run_interactive(vocabulary):
+    """Load vocabulary into a prefix tree and run an interactive autocomplete loop."""
+    print('Loading {:,} words into prefix tree...'.format(len(vocabulary)))
+    start_time = time.time()
+    structure = autocomplete_setup(vocabulary, 'trie')
+    elapsed = time.time() - start_time
+    print('Ready in {:.2f} sec. Type a prefix to autocomplete. Press Enter to quit.\n'.format(elapsed))
+
+    while True:
+        try:
+            prefix = input('> ').strip()
+        except (KeyboardInterrupt, EOFError):
+            print()
+            break
+        if not prefix:
+            break
+        completions = autocomplete(prefix, structure, 'trie')
+        if completions:
+            print('{} completions: {}'.format(len(completions), ', '.join(completions[:10])))
+            if len(completions) > 10:
+                print('  ... and {} more'.format(len(completions) - 10))
+        else:
+            print('No completions found for {!r}'.format(prefix))
+        print()
+
+
 def main():
     """Read command-line arguments and test autocomplete algorithms."""
     parser = argparse.ArgumentParser(
         description='Autocomplete words from the English dictionary.'
     )
-    parser.add_argument('prefix', help='Prefix string to autocomplete')
+    parser.add_argument('prefix', nargs='?', help='Prefix string to autocomplete')
     parser.add_argument(
         '--algorithm', choices=['linear', 'trie'], default='linear',
         help='Search algorithm to use (default: linear)'
@@ -92,12 +118,24 @@ def main():
         '--benchmark', action='store_true',
         help='Compare linear search and prefix tree side by side'
     )
+    parser.add_argument(
+        '--interactive', action='store_true',
+        help='Interactively autocomplete prefixes using a prefix tree'
+    )
     args = parser.parse_args()
 
     vocabulary = get_lines('/usr/share/dict/words')
 
+    if args.interactive:
+        run_interactive(vocabulary)
+        return
+
     if args.benchmark:
         run_benchmark(args.prefix, vocabulary)
+        return
+
+    if not args.prefix:
+        parser.print_help()
         return
 
     algorithm = 'linear_search' if args.algorithm == 'linear' else 'trie'
