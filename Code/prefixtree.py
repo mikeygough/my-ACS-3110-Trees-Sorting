@@ -49,15 +49,12 @@ class PrefixTree:
             else:
                 return False
 
-        if current_node.is_terminal():
-            return True
-        else:
-            return False
+        return current_node.is_terminal()
 
     def insert(self, string):
         """Insert the given string into this prefix tree."""
         if self.contains(string):
-            return 
+            return
 
         current_node = self.root
         for char in string:
@@ -97,7 +94,6 @@ class PrefixTree:
         # matched the prefix
         if depth == len(prefix):
             self._traverse(node, prefix, completions.append)
- 
         return completions
 
     def strings(self):

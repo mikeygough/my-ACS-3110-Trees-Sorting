@@ -2,6 +2,7 @@
 
 import argparse
 import time
+from prefixtree import PrefixTree
 
 
 def get_lines(filename='/usr/share/dict/words'):
@@ -13,11 +14,6 @@ def get_lines(filename='/usr/share/dict/words'):
     return lines
 
 
-def generate_prefixes(vocabulary):
-    """Return a set of unique prefixes from the given list of strings."""
-    # Generate prefixes using the first half of each string
-    return set(word[:len(word)//2] for word in vocabulary)
-
 
 def autocomplete_setup(vocabulary, algorithm='linear_search'):
     """Return the main data structure needed to set up autocomplete using the
@@ -26,7 +22,6 @@ def autocomplete_setup(vocabulary, algorithm='linear_search'):
         # Use the given vocabulary list
         return vocabulary
     elif algorithm == 'trie':
-        from prefixtree import PrefixTree
         # Create a prefix tree structure with the vocabulary
         return PrefixTree(vocabulary)
 
@@ -152,7 +147,7 @@ def main():
     end_time = time.time()
 
     print('Algorithm: {}'.format(args.algorithm))
-    print('Vocabulary size: {}'.format(len(vocabulary)))
+    print('Vocabulary size: {:,}'.format(len(vocabulary)))
     print('Completions of {!r}: {}'.format(args.prefix, ', '.join(completions)))
     print()
     print('Initial setup time: {:.6f} sec'.format(setup_time - start_time))
