@@ -246,5 +246,43 @@ class PrefixTreeTest(unittest.TestCase):
             self.assertCountEqual(tree_strings, input_strings)  # Ignore order
 
 
+class PrefixTreeAutocompleteTest(unittest.TestCase):
+    """Tests focused on autocomplete behavior with realistic English words."""
+
+    def setUp(self):
+        self.words = ['apple', 'application', 'apply', 'apt', 'banana', 'band', 'bandana']
+        self.tree = PrefixTree(self.words)
+
+    def test_complete_shared_prefix(self):
+        # 'app' should return all words starting with 'app'
+        result = self.tree.complete('app')
+        self.assertCountEqual(result, ['apple', 'application', 'apply'])
+
+    def test_complete_exact_word(self):
+        # Completing an exact word should return just that word (and any extensions)
+        result = self.tree.complete('apple')
+        self.assertEqual(result, ['apple'])
+
+    def test_complete_no_match(self):
+        # Prefix not in tree should return empty list
+        result = self.tree.complete('xyz')
+        self.assertEqual(result, [])
+
+    def test_complete_empty_prefix(self):
+        # Empty prefix should return all words
+        result = self.tree.complete('')
+        self.assertCountEqual(result, self.words)
+
+    def test_complete_case_sensitive(self):
+        # Tree is case-sensitive; uppercase prefix should not match lowercase words
+        result = self.tree.complete('App')
+        self.assertEqual(result, [])
+
+    def test_complete_full_word_with_extensions(self):
+        # 'band' is a word but also a prefix of 'bandana'
+        result = self.tree.complete('band')
+        self.assertCountEqual(result, ['band', 'bandana'])
+
+
 if __name__ == '__main__':
     unittest.main()
