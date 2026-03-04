@@ -4,6 +4,19 @@ import argparse
 import time
 from prefixtree import PrefixTree
 
+"""
+How to use:
+
+# Single lookup
+python3 autocomplete.py <prefix> --algorithm trie
+python3 autocomplete.py <prefix> --algorithm linear
+
+# Benchmark
+python3 autocomplete.py <prefix> --benchmark
+
+# Interactive
+python3 autocomplete.py --interactive
+"""
 
 def get_lines(filename='/usr/share/dict/words'):
     """Return a list of strings on separate lines in the given text file with
